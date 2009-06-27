@@ -3,6 +3,17 @@
 #include <unistd.h>
 
 
+typedef enum 
+{
+    ARG_COMMAND=0,
+    ARG_PRODUCT_ID,
+    ARG_SERIAL,
+    ARG_DURATION_0,
+    MIN_ARG_COUNT
+} ARGS;
+
+
+
 void play_frame( PhidgetInterfaceKit* pik, int* frame )
 {
 	int i;
@@ -21,21 +32,27 @@ int main( int argc , char** argv )
 
 
 	phidget_init();
-	if (argc<2 || argc>17)
+	if (argc < MIN_ARG_COUNT )
 	{
-		printf( "%s <1-16 durations in usec>\n", argv[0] );
+		printf( "\n\nToo Few Parameters:\n%s <usb product id> <serial> [<durations in usec> ...]\n", argv[ARG_COMMAND] );
 	}
 	else if( (preturnVal=phidget_interfacekit_open( 
 		pik, 
-		PHIDGETS_USB_PRODUCTID_INTERFACEKIT_0_16_16, 
-		81213,
+		atoi(argv[ARG_PRODUCT_ID]), 
+		atoi(argv[ARG_SERIAL]), 
 		1000)) != PHIDGET_RET_SUCCESS )
 	{
-		printf ( "Unable to connect: reason %d\n", (int)preturnVal );
+		printf ( "\n\nUnable to connect: reason %d\n", (int)preturnVal );
+	}
+	else if( argc > ( ARG_DURATION_0 + pik->numDigitalOutputs ) )
+	{
+		printf( "\n\nToo Many Parameters, Phidget supports %d:\n %s <usb product id> <serial> [<durations in usec> ...]\n",
+			pik->numDigitalOutputs,
+			argv[ARG_COMMAND] );
 	}
 	else
 	{
-		for( x=0; x<16; x++)
+		for( x=0; x<pik->numDigitalOutputs; x++)
 		{
 			pik->digitalOutput[x] = 0;
 		}
@@ -44,12 +61,12 @@ int main( int argc , char** argv )
 			printf ( "Unable to status: reason %d\n", (int)preturnVal );
 		}
 		
-		for( x=1; x < argc; x++ )
+		for( x=ARG_DURATION_0; x < argc; x++ )
 		{
 			tmp=atol(argv[x]);
 			if(tmp>0)
 			{
-				pik->digitalOutput[x-1]=1;
+				pik->digitalOutput[x-ARG_DURATION_0]=1;
 				if( (preturnVal=phidget_interfacekit_digitaloutputs_update(pik)) != PHIDGET_RET_SUCCESS )
 				{
 					printf ( "Unable to status: reason %d\n", (int)preturnVal );
@@ -58,7 +75,7 @@ int main( int argc , char** argv )
 				{
 					printf ( "usleep error.\n");
 				}	
-				pik->digitalOutput[x-1]=0;
+				pik->digitalOutput[x-ARG_DURATION_0]=0;
 				if( (preturnVal=phidget_interfacekit_digitaloutputs_update(pik)) != PHIDGET_RET_SUCCESS )
 				{
 					printf ( "Unable to status: reason %d\n", (int)preturnVal );
@@ -66,7 +83,7 @@ int main( int argc , char** argv )
 			}
 		}
 	
-		for( x=0; x<16; x++)
+		for( x=0; x<pik->numDigitalOutputs; x++)
 		{
 			pik->digitalOutput[x] = 0;
 		}

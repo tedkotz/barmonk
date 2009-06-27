@@ -1,64 +1,68 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# - Imports -------------------------------------------------------------------
 import os
-import csv
 import wx
+import config_db
+import xml.sax 
 
-class MixFrame(wx.Frame):
-    def __init__(self, parent, drink_name, recipe):
-	wx.Frame.__init__(self, name='', parent=parent,
-	    style=wx.DEFAULT_FRAME_STYLE, title=u'Mix Your Drink?', size=wx.Size(450,300))
+# - Types ---------------------------------------------------------------------
 
-	self.recipe=recipe
+class MixFrame(wx.Dialog):
+    def __init__(self, parent, config, drinkName):
+        wx.Dialog.__init__(self, name='', parent=parent,
+            title=u'Mix Your Drink?', size=wx.Size(450,300))
 
-	panel = wx.Panel(self)
+        self.config=config
+        self.drinkName=drinkName
+
+        panel = wx.Panel(self)
 	
-	# contents of panel
-	textLabel=wx.StaticText(label=u'Mix '+drink_name+u':', parent=panel ) 
-	panel2 = wx.Panel(panel)
-	panel3 = wx.Panel(panel)
+        # contents of panel
+        textLabel=wx.StaticText(label=u'Mix '+drinkName+u':', parent=panel ) 
+        panel2 = wx.Panel(panel)
+        panel3 = wx.Panel(panel)
 
-	#contents of panel3
-	mixButton = wx.Button(label=u'Mix', parent=panel3)
-	mixButton.Bind(wx.EVT_BUTTON, self.OnMixButton)
+        #contents of panel3
+        mixButton = wx.Button(label=u'Mix', parent=panel3)
+        mixButton.Bind(wx.EVT_BUTTON, self.OnMixButton)
 
-	cancelButton = wx.Button(label=u'Cancel', parent=panel3)
-	cancelButton.Bind(wx.EVT_BUTTON, self.OnCancelButton)
+        cancelButton = wx.Button(label=u'Cancel', parent=panel3)
+        cancelButton.Bind(wx.EVT_BUTTON, self.OnCancelButton)
 
-	# contents and layout of panel2
-	grid = wx.GridSizer( rows=0, cols =4 )
-	for i in range(16):
-		grid.Add(wx.StaticText(panel2, wx.ID_ANY, ingredients[i] ) , 1, wx.EXPAND | wx.ALL, 1)
-		textCtrl = wx.TextCtrl(panel2, wx.ID_ANY, self.recipe[i] ) 
-		textCtrl.SetEditable( False )
-		grid.Add( textCtrl , 1, wx.EXPAND | wx.ALL, 1)
+        recipe=self.config.getRecipe( self.drinkName )
+
+        # contents and layout of panel2
+        grid = wx.GridSizer( rows=0, cols =4 )
+        for i in sorted(recipe.keys()):
+            grid.Add(wx.StaticText(panel2, wx.ID_ANY, i ) , 1, wx.EXPAND | wx.ALL, 1)
+            textCtrl = wx.TextCtrl(panel2, wx.ID_ANY, str(recipe[i]) ) 
+            grid.Add(textCtrl , 1, wx.EXPAND | wx.ALL, 1)
+            textCtrl.SetEditable( False )
+
+
+        panel2.SetSizer(grid)	
 	
-	panel2.SetSizer(grid)	
-	
-	#layout of panel3
-	hbox = wx.BoxSizer(wx.HORIZONTAL)
-	hbox.Add(cancelButton, 0, wx.ALL , 4 )
-	hbox.Add(mixButton, 0, wx.ALL , 4 )
-	panel3.SetSizer(hbox)
+        #layout of panel3
+        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        hbox.Add(cancelButton, 0, wx.ALL , 4 )
+        hbox.Add(mixButton, 0, wx.ALL , 4 )
+        panel3.SetSizer(hbox)
 	
 	#layout of panel
-	vbox = wx.BoxSizer(wx.VERTICAL)
-	vbox.Add(textLabel, 1, wx.EXPAND | wx.ALL , 2 )
-	vbox.Add(panel2, 8, wx.EXPAND | wx.ALL , 1 )
-	vbox.Add(panel3, 0, wx.ALIGN_RIGHT , 0  )
-	panel.SetSizer(vbox)	
+        vbox = wx.BoxSizer(wx.VERTICAL)
+        vbox.Add(textLabel, 1, wx.EXPAND | wx.ALL , 2 )
+        vbox.Add(panel2, 8, wx.EXPAND | wx.ALL , 1 )
+        vbox.Add(panel3, 0, wx.ALIGN_RIGHT , 0  )
+        panel.SetSizer(vbox)	
 	
 	
     def OnCancelButton(self, event):
 	self.Close()
 
     def OnMixButton(self, event):
-	cmd="barmonk"
-	for i in range(16):
-	    cmd = cmd + " " + str(int( float(self.recipe[i]) * float(multipliers[i])))
-#	print cmd
-	os.system(cmd)
+        self.config.mixDrink( self.drinkName )
 	self.Close()
 
 
@@ -73,7 +77,7 @@ class ImagePanel(wx.Panel):
 	
     def OnPaint(self, event):
 	size=self.GetSize()
-	bitmap=self.image.Scale((size.GetWidth()-4),(size.GetHeight()-4),wx.IMAGE_QUALITY_HIGH).ConvertToBitmap()
+	bitmap=self.image.Scale((size.GetWidth()-4),(size.GetHeight()-4),wx.IMAGE_QUALITY_NORMAL).ConvertToBitmap()
 	dc = wx.PaintDC(self)
 	dc.DrawBitmap(bitmap, 2, 2)
 	
@@ -85,74 +89,87 @@ class ImagePanel(wx.Panel):
 
 
 class BarMonkFrame(wx.Frame):
-    def __init__(self, parent, drink_list):
+    def __init__(self, parent, config, image):
 	wx.Frame.__init__(self, name='', parent=parent, size=wx.Size(800, 600),
 	    style=wx.DEFAULT_FRAME_STYLE, title=u'Bar Monkey')
 
-	self.drinks=drink_list
+	self.config=config
 
 	panel = wx.Panel(self, wx.ID_ANY)
-	hbox = wx.BoxSizer(wx.HORIZONTAL)
 
-	self.barMonkListBox = wx.ListBox(choices=sorted(self.drinks.keys()), parent=panel )
-
-	self.imagePanel = ImagePanel(panel, wx.ID_ANY, wx.Image(panelImage))
-
-
-	hbox.Add(self.barMonkListBox, 1, wx.EXPAND | wx.ALL , 2 )
-	hbox.Add(self.imagePanel, 2, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.TOP, 2 )
-	panel.SetSizer(hbox)
-
+	self.filterListBox = wx.ListBox(choices= sorted(self.config.getGroups()), parent=panel )
+	self.filterListBox.Bind(wx.EVT_LISTBOX, self.OnFilterListBox)
+	
+	self.barMonkListBox = wx.ListBox(choices=sorted(self.config.getDrinks(config_db.FAV_GROUP)), parent=panel )
 	self.barMonkListBox.Bind(wx.EVT_LISTBOX, self.OnBarMonkListBox)
 
+	self.imagePanel = ImagePanel(panel, wx.ID_ANY, wx.Image(image))
+
+
+	hbox = wx.BoxSizer(wx.HORIZONTAL)
+	hbox.Add(self.filterListBox, 2, wx.EXPAND | wx.ALL , 2 )
+	hbox.Add(self.barMonkListBox, 3, wx.EXPAND | wx.ALL , 2 )
+	hbox.Add(self.imagePanel, 5, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.TOP, 2 )
+	panel.SetSizer(hbox)
 
 
 
+
+    def OnFilterListBox(self, event):
+	selName = self.filterListBox.GetStringSelection()
+        tmplist=self.config.getDrinks(selName)
+        if tmplist == None:
+            self.barMonkListBox.SetItems([])
+        else:
+            self.barMonkListBox.SetItems(sorted(tmplist))
     
     def OnBarMonkListBox(self, event):
 	selName = self.barMonkListBox.GetStringSelection()
-	if selName in self.drinks:
-		mixDialog=MixFrame(self, selName, self.drinks[ selName ])
-		mixDialog.Centre()
-		mixDialog.Show()
-		self.barMonkListBox.DeselectAll()
+        mixDialog=MixFrame(self, self.config, selName)
+        mixDialog.Centre()
+        mixDialog.ShowModal()
+        self.barMonkListBox.DeselectAll()
     
+# - Data ----------------------------------------------------------------------
+
+# - Modules -------------------------------------------------------------------
+def main():
+    panelImage = "monkey_head_nicu_buculei_01.png"
+    sourceFileName = "barmonk.xml"
+
+    homedir=os.environ["HOME"]
+    
+    if os.path.isfile('/etc/barmonk/config'):
+            execfile('/etc/barmonk/config')
+    
+    if os.path.isfile(homedir +'/.barmonkrc'):
+            execfile(homedir + '/.barmonkrc')
+
+    # Create an instance of the Handler.
+    handler = config_db.BarMonkConfigDB()
+    # Create an instance of the parser.
+    parser = xml.sax.make_parser()
+    # Set the content handler.
+    parser.setContentHandler(handler)
+    inFile = open(sourceFileName, 'r')
+    # Start the parse.
+    parser.parse(inFile)                                        
+    # Alternatively, we could directly pass in the file name.
+    #parser.parse(inFileName)
+    inFile.close()
+    
+    app = wx.PySimpleApp()
+    wx.InitAllImageHandlers()
+    frame = BarMonkFrame(None, handler, panelImage)
+    frame.Centre()
+    frame.Show()
+    
+    app.MainLoop()
 
 
 
 
-# program entry point ...
+# - Start ---------------------------------------------------------------------
 if __name__ == '__main__':
-	
-	panelImage = "monkey_head_nicu_buculei_01.png"
-	sourcefile = "data.csv"
-	
-	homedir=os.environ["HOME"]
-	
-	if os.path.isfile('/etc/barmonk/config'):
-		execfile('/etc/barmonk/config')
-	
-	if os.path.isfile(homedir +'/.barmonkrc'):
-		execfile(homedir + '/.barmonkrc')
-	
-	reader = csv.reader(open(sourcefile, "rb"), delimiter=',')
-	drinks = {}
-	category = {}
-	i = 0
-	for row in reader:
-		if ( row[0].lower() == 'ingredients' ):
-			ingredients = row[2:]
-		elif ( row[0].lower() == 'multipliers' ):
-			multipliers = row[2:]
-		else:
-			drinks[ row[0] ] = row[2:]
-			category[ row[0] ] = row[1]
-	
-	app = wx.PySimpleApp()
-	wx.InitAllImageHandlers()
-	frame = BarMonkFrame(None, drinks)
-	frame.Centre()
-	frame.Show()
-	
-	app.MainLoop()
+    main()
 
