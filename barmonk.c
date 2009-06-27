@@ -14,15 +14,6 @@ typedef enum
 
 
 
-void play_frame( PhidgetInterfaceKit* pik, int* frame )
-{
-	int i;
-	phidget_return preturnVal;
-	
-	usleep(100000);
-}
-
-
 int main( int argc , char** argv )
 {
 	phidget_return preturnVal;
