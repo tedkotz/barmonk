@@ -19,6 +19,7 @@
 /* Includes ******************************************************************/
 #include <phidgets/interfacekit.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 
@@ -69,8 +70,8 @@ int main( int argc , char** argv )
     }
     else if( (preturnVal=phidget_interfacekit_open( 
         pik, 
-        atoi(argv[ARG_PRODUCT_ID]), 
-        atoi(argv[ARG_SERIAL]), 
+        strtol(argv[ARG_PRODUCT_ID], NULL, 0), 
+        strtol(argv[ARG_SERIAL], NULL, 0), 
         1000)) != PHIDGET_RET_SUCCESS )
     {
         printf ( "\n\nUnable to connect: reason %d\n", (int)preturnVal );
@@ -94,7 +95,7 @@ int main( int argc , char** argv )
         
         for( x=ARG_DURATION_0; x < argc; x++ )
         {
-            tmp=atol(argv[x]);
+            tmp=strtol(argv[x], NULL, 0);
             if(tmp>0)
             {
                 pik->digitalOutput[x-ARG_DURATION_0]=1;

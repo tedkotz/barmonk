@@ -134,17 +134,20 @@ class BarMonkFrame(wx.Frame):
 
 # - Modules -------------------------------------------------------------------
 def main():
-    panelImage = "monkey_head_nicu_buculei_01.png"
-    sourceFileName = "barmonk.xml"
+    panelImage = "/usr/local/share/images/monkey_head_nicu_buculei_01.png"
+    sourceFileName = "/etc/barmonk.xml"
 
     homedir=os.environ["HOME"]
-    
-    if os.path.isfile('/etc/barmonk/config'):
-        execfile('/etc/barmonk/config')
     
     if os.path.isfile(homedir +'/.barmonkrc'):
         execfile(homedir + '/.barmonkrc')
 
+    if not os.path.isfile(panelImage):
+        panelImage = os.path.basename(panelImage)
+
+    if not os.path.isfile(sourceFileName):
+        sourceFileName = os.path.basename(sourceFileName)
+    
     # Create an instance of the Handler.
     handler = config_db.BarMonkConfigDB()
     # Create an instance of the parser.

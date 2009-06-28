@@ -6,6 +6,7 @@ import sys
 import string
 import xml.sax 
 import numpy
+import os
 
 # - Types ---------------------------------------------------------------------
 class BarMonkConfigDB(xml.sax.handler.ContentHandler):             
@@ -80,8 +81,7 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         for i in range (0, int(controller[OUTPUTS_ATTRIBUTE]) ):
             mesg = mesg + str(int(durations[ i ])) + u' '
         print mesg
-        #os.system( mesg + ' >> /tmp/barmonk')
-        #os.system('echo "' + mesg + '" >> /tmp/barmonk')
+        os.system( mesg )
         
 
     def mixDrink(self, drinkDesc):

@@ -14,12 +14,10 @@ INGREDIENT_BASE_NAME=u'item'
 
 # - Modules -------------------------------------------------------------------
 def main():
-    sourceFileName = "barmonk.xml"
+    sourceFileName = "/etc/barmonk.xml"
 
-    homedir=os.environ["HOME"]
-    
-    if os.path.isfile('/etc/barmonk/config'):
-            execfile('/etc/barmonk/config')
+    if not os.path.isfile(sourceFileName):
+        sourceFileName = os.path.basename(sourceFileName)
     
     # Create an instance of the Handler.
     handler = config_db.BarMonkConfigDB()
