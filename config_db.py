@@ -32,6 +32,14 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
             self.groups[ attrs.get( DESC_ATTRIBUTE ) ] = attrs
         elif name == DRINK_ELEMENT:
             self.drinks[ attrs.get( DESC_ATTRIBUTE ) ] = attrs
+        elif name == CONTROLLERS_ELEMENT:
+            self.controllers = {}
+        elif name == INGREDIENTS_ELEMENT:
+            self.ingredients = {}
+        elif name == GROUPS_ELEMENT:
+            self.groups = {}
+        elif name == DRINKS_ELEMENT:
+            self.drinks = {}
         else:
             None
 
@@ -140,6 +148,11 @@ CONTROLLER_ELEMENT=u'controller'
 INGREDIENT_ELEMENT=u'ingredient'
 GROUP_ELEMENT=u'group'
 DRINK_ELEMENT=u'drink'
+
+CONTROLLERS_ELEMENT=u'controllers'
+INGREDIENTS_ELEMENT=u'ingredients'
+GROUPS_ELEMENT=u'groups'
+DRINKS_ELEMENT=u'drinks'
 
 BACKEND_COMMAND=u'barmonk '
 
