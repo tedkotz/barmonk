@@ -1,5 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+## 
+# @file    barcgi.py
+# @author  Ted Kotz <ted@kotz.us>
+# @version 1.0
+#
+# @section LICENSE
+#
+# Copyright 2009-2009 Theodore Kotz.  All rights reserved.
+#  See license distributed with this file and
+#  available online at http://[Project Website]/license.html
+#
+# @section DESCRIPTION
+#
+# This cgi script provide a web backend for web and flash interfaces
+# 
 
 # - Imports -------------------------------------------------------------------
 import cgi, os
@@ -9,10 +24,23 @@ import numpy
 
 # - Types ---------------------------------------------------------------------
 # - Data ----------------------------------------------------------------------
+
+##
+# Content Type sent to Web Server
+#
 CONTENT_TYPE=u'Content-Type: text/plain\n\n'
+
+##
+# Base name of ingredients from client
+#
 INGREDIENT_BASE_NAME=u'item'
 
 # - Modules -------------------------------------------------------------------
+
+##
+# Main Function 
+#
+#
 def main():
     sourceFileName = "/etc/barmonk.xml"
 

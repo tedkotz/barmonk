@@ -1,5 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+## 
+# @file wxbarmonkgui.py
+# @author  Ted Kotz <ted@kotz.us>
+# @version 1.0
+#
+# @section LICENSE
+#
+# Copyright 2009-2009 Theodore Kotz.  All rights reserved.
+#  See license distributed with this file and
+#  available online at http://[Project Website]/license.html
+#
+# @section DESCRIPTION
+#
+# The Wx Widgets GUI frontend to the bar monkey controller
+# 
 
 # - Imports -------------------------------------------------------------------
 import os
@@ -9,7 +24,28 @@ import xml.sax
 
 # - Types ---------------------------------------------------------------------
 
+##
+# The dialog that allows the user to confirm their drink selection.
+#
 class MixFrame(wx.Dialog):
+    ##
+    # @var config
+    #   The configuration database and connection to the backend
+    #
+
+    ##
+    # @var drinkName
+    #   The description of the drink to mix.
+    #
+    
+    ##
+    # Constructor.
+    #
+    # @param self Object reference.
+    # @param parent The parent component
+    # @param config The configuration database and conection to the backend
+    # @param drinkName The description of the drink to mix.
+    #
     def __init__(self, parent, config, drinkName):
         wx.Dialog.__init__(self, name='', parent=parent,
             title=u'Mix Your Drink?', size=wx.Size(450,300))
@@ -56,17 +92,43 @@ class MixFrame(wx.Dialog):
         vbox.Add(panel2, 8, wx.EXPAND | wx.ALL , 1 )
         vbox.Add(panel3, 0, wx.ALIGN_RIGHT , 0  )
         panel.SetSizer(vbox)	
-        
-        
+    
+    ##
+    # Cancel button handler
+    #
+    # @param self Object reference.
+    # @param event the initiating event
+    #
     def OnCancelButton(self, event):
         self.Close()
-
+    
+    ##
+    # Mix button handler.
+    #
+    # @param self Object reference.
+    # @param event the initiating event
+    #
     def OnMixButton(self, event):
         self.config.mixDrink( self.drinkName )
         self.Close()
 
-
+##
+# A panel that holds a wxImage
+#
 class ImagePanel(wx.Panel):
+    ##
+    # @var image
+    #   the wxImage to display 
+    #
+    
+    ##
+    # Constructor
+    #
+    # @param self Object reference.
+    # @param parent The parent component
+    # @param id The WxWidgets ID
+    # @param img The WxImage contents
+    #
     def __init__(self, parent, id, img):
         wx.Panel.__init__(self, parent, id)
         
@@ -75,20 +137,56 @@ class ImagePanel(wx.Panel):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         
+    
+    ##
+    # The paint event handler method
+    #
+    # @param self Object reference.
+    # @param event The initiating event
+    #
     def OnPaint(self, event):
         size=self.GetSize()
         bitmap=self.image.Scale((size.GetWidth()-4),(size.GetHeight()-4),wx.IMAGE_QUALITY_NORMAL).ConvertToBitmap()
         dc = wx.PaintDC(self)
         dc.DrawBitmap(bitmap, 2, 2)
         
+    
+    ##
+    # The Resize event handler
+    #
+    # @param self Object reference.
+    # @param event The initiating event
+    #
     def OnSize(self, event):
         self.Refresh()
 
-
-
-
-
+##
+# The Barmonkey apllications main frame
+#
 class BarMonkFrame(wx.Frame):
+    ##
+    # @var config
+    #   The configuration database and connection to the backend.
+    #
+
+    ##
+    # @var filterListBox
+    #   The list box containing the drink groups to filter on.
+    #
+
+    ##
+    # @var barMonkListBox
+    #   The list box containing the filtered drink list.
+    #
+
+    ##
+    # constructor
+    #
+    # @param self Object reference.
+    # @param parent The parent component
+    # @param config The configuration database and conection to the backend
+    # @param image The image to show in the right box
+    #
     def __init__(self, parent, config, image):
         wx.Frame.__init__(self, name='', parent=parent, size=wx.Size(800, 600),
             style=wx.DEFAULT_FRAME_STYLE, title=u'Bar Monkey')
@@ -103,18 +201,21 @@ class BarMonkFrame(wx.Frame):
         self.barMonkListBox = wx.ListBox(choices=sorted(self.config.getDrinks(config_db.FAV_GROUP)), parent=panel )
         self.barMonkListBox.Bind(wx.EVT_LISTBOX, self.OnBarMonkListBox)
 
-        self.imagePanel = ImagePanel(panel, wx.ID_ANY, wx.Image(image))
+        imagePanel = ImagePanel(panel, wx.ID_ANY, wx.Image(image))
 
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         hbox.Add(self.filterListBox, 2, wx.EXPAND | wx.ALL , 2 )
         hbox.Add(self.barMonkListBox, 3, wx.EXPAND | wx.ALL , 2 )
-        hbox.Add(self.imagePanel, 5, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.TOP, 2 )
+        hbox.Add(imagePanel, 5, wx.EXPAND | wx.LEFT | wx.BOTTOM | wx.TOP, 2 )
         panel.SetSizer(hbox)
-
-
-
-
+    
+    ##
+    # The filter selection handler
+    #
+    # @param self Object reference.
+    # @param event The initiating event
+    #
     def OnFilterListBox(self, event):
         selName = self.filterListBox.GetStringSelection()
         tmplist=self.config.getDrinks(selName)
@@ -123,6 +224,12 @@ class BarMonkFrame(wx.Frame):
         else:
             self.barMonkListBox.SetItems(sorted(tmplist))
     
+    ##
+    # The drink selection handler
+    #
+    # @param self Object reference.
+    # @param event The initiating event
+    #
     def OnBarMonkListBox(self, event):
         selName = self.barMonkListBox.GetStringSelection()
         mixDialog=MixFrame(self, self.config, selName)
@@ -133,6 +240,10 @@ class BarMonkFrame(wx.Frame):
 # - Data ----------------------------------------------------------------------
 
 # - Modules -------------------------------------------------------------------
+
+##
+# Main function loads configuration then kicks off interface.
+#
 def main():
     panelImage = "/usr/local/share/images/monkey_head_nicu_buculei_01.png"
     sourceFileName = "/etc/barmonk.xml"
@@ -154,12 +265,8 @@ def main():
     parser = xml.sax.make_parser()
     # Set the content handler.
     parser.setContentHandler(handler)
-    inFile = open(sourceFileName, 'r')
     # Start the parse.
-    parser.parse(inFile)                                        
-    # Alternatively, we could directly pass in the file name.
-    #parser.parse(inFileName)
-    inFile.close()
+    parser.parse(sourceFileName)
     
     app = wx.PySimpleApp()
     wx.InitAllImageHandlers()

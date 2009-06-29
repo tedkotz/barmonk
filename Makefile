@@ -30,7 +30,8 @@ install: $(PKG)
 	cp -i barmonk.xml $(CONFIGDIR)/
 	cp $(PKG) $(PREFIX)/bin/
 	cp config_db.py $(PYTHONLIBDIR)/
-	cp wxbarmonkgui $(PREFIX)/bin/
+	cp wxbarmonkgui.py $(PREFIX)/bin/
+	ln -sf $(PREFIX)/bin/wxbarmonkgui.py $(PREFIX)/bin/wxbarmonkgui
 	cp barcgi.py $(CGIBINDIR)/
 	mkdir -p $(PREFIX)/share/images/
 	cp -i monkey_head_nicu_buculei_01.png $(PREFIX)/share/images/

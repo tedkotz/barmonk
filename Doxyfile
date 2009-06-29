@@ -25,7 +25,7 @@ DOXYFILE_ENCODING      = UTF-8
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = "barmonk"
+PROJECT_NAME           = "Bar Monkey"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -170,7 +170,7 @@ SEPARATE_MEMBER_PAGES  = NO
 # The TAB_SIZE tag can be used to set the number of spaces in a tab. 
 # Doxygen uses this value to replace tabs by spaces in code fragments.
 
-TAB_SIZE               = 8
+TAB_SIZE               = 4
 
 # This tag can be used to specify a number of aliases that acts 
 # as commands in the documentation. An alias has the form "name=value". 
@@ -216,7 +216,7 @@ OPTIMIZE_OUTPUT_VHDL   = NO
 # .inc files as Fortran files (default is PHP), and .f files as C (default is Fortran), 
 # use: inc=Fortran f=C. Note that for custom extensions you also need to set FILE_PATTERNS otherwise the files are not read by doxygen.
 
-EXTENSION_MAPPING      = 
+EXTENSION_MAPPING      = wxbarmonkgui=Python
 
 # If you use STL classes (i.e. std::string, std::vector, etc.) but do not want 
 # to include (a tag file for) the STL sources as input, then you should 
@@ -581,7 +581,7 @@ INPUT_ENCODING         = UTF-8
 # *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx 
 # *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py *.f90
 
-FILE_PATTERNS          = *.c *.h
+FILE_PATTERNS          = *.c *.h *.py wxbarmonkgui
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 

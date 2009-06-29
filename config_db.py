@@ -1,5 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+## 
+# @file    config_db.py
+# @author  Ted Kotz <ted@kotz.us>
+# @version 1.0
+#
+# @section LICENSE
+#
+# Copyright 2009-2009 Theodore Kotz.  All rights reserved.
+#  See license distributed with this file and
+#  available online at http://[Project Website]/license.html
+#
+# @section DESCRIPTION
+#
+# This holds the common code for parsing the configuration DB
+# 
+
 
 # - Imports -------------------------------------------------------------------
 import sys
@@ -9,21 +25,66 @@ import numpy
 import os
 
 # - Types ---------------------------------------------------------------------
+##
+# Configuration Parser and Storage Database
 class BarMonkConfigDB(xml.sax.handler.ContentHandler):             
+    ##
+    # @var controllers 
+    #   List of controllers by id 
+    #
+    
+    ##
+    # @var ingredients 
+    #   List of ingredients by id 
+    #
+    
+    ##
+    # @var groups 
+    #   List of groups by Description
+    #
+    
+    ##
+    # @var drinks 
+    #   List of drinks by Description 
+    #
+
+    ##
+    # Constructor
+    #
+    # @param self object reference
+    #
     def __init__(self):
         self.controllers = {}
         self.ingredients = {}
         self.groups = {}
-        self.ingredients = {}
+        self.drinks = {}
 
+    ##
+    # Start of Document Handler 
+    #
+    # @param self object reference
+    #
     def startDocument(self):                                    
         self.controllers = {}
         self.ingredients = {}
         self.groups = {}
         self.drinks = {}
 
+    ##
+    # End of Document Handler
+    #
+    # @param self object reference
+    #
     def endDocument(self):                                      
         None
+
+    ##
+    # Start of Element Handler
+    #
+    # @param self Object reference
+    # @param name Element name string
+    # @param attrs List of attribute values by attribute name
+    #
     def startElement(self, name, attrs):
         if name == CONTROLLER_ELEMENT:
             self.controllers[ attrs.get( ID_ATTRIBUTE )  ] = attrs
@@ -44,18 +105,45 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         else:
             None
 
+    ##
+    # End of Element Handler
+    #
+    # @param self Object reference
+    # @param name Element name string
+    #
     def endElement(self, name):
         None
 
+    ##
+    # Characters Handler
+    #
+    # @param self Object reference
+    # @param chrs A block of non-Tag Characters
+    #
     def characters(self, chrs):
         None
 
+    ##
+    # Returns the list of groups descriptions
+    #
+    # @param self object reference
+    # @return The list of group descriptions
+    #
     def getGroups(self):
         returnVal=sorted(self.groups.keys())
         returnVal.insert(0, FAV_GROUP)
         returnVal.insert(0, ALL_GROUP)
         return returnVal
     
+    ##
+    # Returns the list of drink descriptions of all drinks in the 
+    # specified group
+    #
+    # @param self Object reference
+    # @param groupDesc The Description string of the group to search for.
+    # @return The list of drink descriptions of all drinks in the 
+    #         specified group
+    #
     def getDrinks(self, groupDesc):
         if groupDesc == ALL_GROUP:
             return self.drinks.keys()
@@ -75,6 +163,14 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         else:
             None
 
+    ##
+    # Activates the specified controller with each output for the 
+    # specified duration.
+    #
+    # @param self object reference
+    # @param controllerId The controller id of the controller to activate
+    # @param durations The list of durations in usec by output number
+    #
     def activateController(self, controllerId, durations ):
         controller=self.controllers[ controllerId ]
         mesg=BACKEND_COMMAND + controller[ USB_ID_ATTRIBUTE ] +u' '+ controller[ SERIAL_ATTRIBUTE ] +u' '
@@ -84,6 +180,12 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         os.system( mesg )
         
 
+    ##
+    # Mixes the drink with the specified description
+    #
+    # @param self object reference
+    # @param drinkDesc The description of the drink to mix
+    #
     def mixDrink(self, drinkDesc):
         if drinkDesc in self.drinks.keys():
             drink = self.drinks[ drinkDesc ]
@@ -104,6 +206,14 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         else:
             None
 
+    ##
+    # Returns the list of ounces of each ingredient by ingredient description
+    # for the drink with the specified description
+    #    
+    # @param self Object reference
+    # @param drinkDesc The Description of the drink to return
+    # @return The list of ounces of each ingredient by ingredient description
+    #
     def getRecipe(self, drinkDesc):
         if drinkDesc in self.drinks.keys():
             drink = self.drinks[ drinkDesc ]
@@ -120,9 +230,22 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         else:
             return None
 
+    ##
+    # Return the list of controller IDs
+    #
+    # @param self object reference
+    # @return The list of controller IDs
+    #
     def getControllers(self):
         return self.controllers.keys()
         
+    ##
+    # Return the number of outputs on the specified controller
+    #
+    # @param self Object reference
+    # @param controllerId The specified controller ID
+    # @return The number of outputs on the specified controller
+    #
     def getNumOutputs(self, controllerId ):
         if controllerId in self.controllers.keys():
             return int(self.controllers[controllerId][OUTPUTS_ATTRIBUTE])
@@ -131,32 +254,101 @@ class BarMonkConfigDB(xml.sax.handler.ContentHandler):
         
 
 # - Data ----------------------------------------------------------------------
+##
+# xml elemement attribute.
+#
 ID_ATTRIBUTE=u'id'
+##
+# xml elemement attribute.
+#
 FAV_ATTRIBUTE=u'fav'
+##
+# xml elemement attribute.
+#
 GROUP_ATTRIBUTE=u'type'
+##
+# xml elemement attribute.
+#
 DESC_ATTRIBUTE=u'desc'
+##
+# xml elemement attribute.
+#
 OUTPUTS_ATTRIBUTE=u'outputs'
+##
+# xml elemement attribute.
+#
 OUTPUT_ATTRIBUTE=u'output'
+##
+# xml elemement attribute.
+#
 MULT_ATTRIBUTE=u'multiplier'
+##
+# xml elemement attribute.
+#
 CONTROLLER_ATTRIBUTE=u'controller'
+##
+# xml elemement attribute.
+#
 USB_ID_ATTRIBUTE=u'phidget_usb_productid'
+##
+# xml elemement attribute.
+#
 SERIAL_ATTRIBUTE=u'phidget_serial'
-ALL_GROUP=u'All'
-FAV_GROUP=u'Favorites'
 
+##
+# xml elemement name.
+#
 CONTROLLER_ELEMENT=u'controller'
+##
+# xml elemement name.
+#
 INGREDIENT_ELEMENT=u'ingredient'
+##
+# xml elemement name.
+#
 GROUP_ELEMENT=u'group'
+##
+# xml elemement name.
+#
 DRINK_ELEMENT=u'drink'
-
+##
+# xml elemement name.
+#
 CONTROLLERS_ELEMENT=u'controllers'
+##
+# xml elemement name.
+#
 INGREDIENTS_ELEMENT=u'ingredients'
+##
+# xml elemement name.
+#
 GROUPS_ELEMENT=u'groups'
+##
+# xml elemement name.
+#
 DRINKS_ELEMENT=u'drinks'
 
+##
+# The Description for the Group containing all drinks
+#
+ALL_GROUP=u'All'
+##
+# The Description for the Group containing all drinks with
+# the FAV_ATTRIBUTE set
+#
+FAV_GROUP=u'Favorites'
+
+##
+# The command that calls the C backend
+#
 BACKEND_COMMAND=u'barmonk '
 
 # - Modules -------------------------------------------------------------------
+##
+# A simple test of the parsing library
+#
+# @param inFileName
+#
 def test(inFileName):
     # Create an instance of the Handler.
     handler = BarMonkConfigDB()
@@ -175,6 +367,10 @@ def test(inFileName):
     print handler.getDrinks(FAV_GROUP)
     handler.mixDrink( u'Berry Soda' )
 
+##
+# A main to call the simple test
+#
+#
 def main():
     args = sys.argv[1:]
     if len(args) != 1:
