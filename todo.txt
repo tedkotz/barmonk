@@ -1,0 +1,4 @@
+	Import flash version of the GUI
+	Add ability to trigger reload of configuration
+	Create tool for managing xml file contents/ createing new recipes
+	Add more flexibility to backend controller definition

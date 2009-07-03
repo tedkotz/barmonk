@@ -7,7 +7,7 @@
  *
  * Copyright 2009-2009 Theodore Kotz.  All rights reserved.
  *  See license distributed with this file and
- *  available online at http://[Project Website]/license.html
+ *  available online at http://www.tyrfing.org/barmonk/license.txt
  *
  * @section DESCRIPTION
  *
