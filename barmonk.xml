@@ -11,7 +11,8 @@
 <ingredient id="cola"      controller="0" output="1"  desc="Cola"              multiplier="1210000"/>
 <ingredient id="cranberry" controller="0" output="2"  desc="Cranberry Juice"   multiplier="1130000"/>
 <ingredient id="gin"       controller="0" output="3"  desc="Gin"               multiplier="1250000"/>
-<ingredient id="gingerale" controller="0" output="4"  desc="Ginger Ale"        multiplier="920000"/>
+<ingredient id="gingerale" controller="0" output="4"  desc="Ginger Ale"        
+multiplier="1000000"/>
 <ingredient id="grenadine" controller="0" output="5"  desc="Grenadine"         multiplier="3160000"/>
 <ingredient id="lime"      controller="0" output="6"  desc="Lime"              multiplier="1130000"/>
 <ingredient id="oj"        controller="0" output="7"  desc="Orange Juice"      multiplier="920000"/>
